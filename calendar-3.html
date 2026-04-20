@@ -243,12 +243,34 @@ function render(){
     cr.innerHTML+=h;
   });
   document.getElementById("sgrid").innerHTML=C.map(function(c){
-    var ks=Object.keys(days[c.id]).sort(),cnt=ks.length,range="Nessun giorno assegnato";
+    var ks=Object.keys(days[c.id]).sort(function(a,b){
+      var ap=a.split("-").map(Number),bp=b.split("-").map(Number);
+      if(ap[0]!==bp[0])return ap[0]-bp[0];
+      if(ap[1]!==bp[1])return ap[1]-bp[1];
+      return ap[2]-bp[2];
+    });
+    var cnt=ks.length,range="Nessun giorno assegnato";
     if(cnt>0){var f=ks[0].split("-"),l=ks[cnt-1].split("-");range=f[2]+"/"+f[1]+"/"+f[0]+" &rarr; "+l[2]+"/"+l[1]+"/"+l[0];}
+    var dateList="";
+    if(cnt>0){
+      var GG=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+      var MN2=["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+      dateList='<div style="margin-top:6px;border-top:1px solid #eee;padding-top:6px">';
+      ks.forEach(function(k){
+        var p=k.split("-").map(Number);
+        var dd=new Date(p[0],p[1]-1,p[2]);
+        var label=GG[dd.getDay()]+" "+p[2]+" "+MN2[p[1]-1]+" "+p[0];
+        dateList+='<div style="font-size:10px;color:#555;padding:1px 0;display:flex;align-items:center;gap:5px">'+
+          '<span style="width:6px;height:6px;border-radius:50%;background:'+c.c+';display:inline-block;flex-shrink:0"></span>'+
+          label+'</div>';
+      });
+      dateList+='</div>';
+    }
     return '<div style="background:#fff;border:1px solid #ddd;border-top:3px solid '+c.c+';border-radius:6px;padding:9px 12px">'+
       '<div style="font-size:11px;font-weight:bold;color:#222;margin-bottom:3px">'+c.name+'</div>'+
       '<div style="font-size:10px;color:#555;margin-bottom:2px">'+range+'</div>'+
-      '<div style="font-size:10px;color:#888">'+cnt+' giorni assegnati</div></div>';
+      '<div style="font-size:10px;color:#888">'+cnt+' giorni assegnati</div>'+
+      dateList+'</div>';
   }).join("");
 }
 
