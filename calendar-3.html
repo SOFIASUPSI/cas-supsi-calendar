@@ -150,7 +150,7 @@ function ith(d){return ITH[d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()]
 function dk(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 function isW(d){return d.getDay()===6||d.getDay()===0;}
 
-async function click(key){
+async function dayClick(key){
   if(days[ac][key]!==undefined){delete days[ac][key];}
   else{days[ac][key]=1;}
   render();
@@ -207,7 +207,7 @@ function rdDay(d){
   var title=tips.length>0?tips.join(" - "):"Clicca per assegnare";
   var nc=wknd?"#222":(ih?"#0C447C":"#888");
   var nw=(wknd||ih)?"bold":"normal";
-  var h='<div class="dc" onclick="click(\''+key+'\')" title="'+title+'" style="background:'+bg+';'+bord+'">';
+  var h='<div class="dc" onclick="dayClick(\''+key+'\')" title="'+title+'" style="background:'+bg+';'+bord+'">';
   h+='<span style="font-size:11px;font-weight:'+nw+';color:'+nc+'">'+d.getDate()+'</span>';
   if(asgnd.length>0){
     h+='<div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap">';
@@ -256,7 +256,7 @@ var hl=document.getElementById("hleg"),seen={};
 var pills=["autumn","christmas","carnival","easter","summer","it_hol"].filter(function(k){if(!seen[HT[k].label]){seen[HT[k].label]=1;return true;}return false;}).map(function(k){var h=HT[k];return'<span style="font-size:10px;padding:2px 8px;background:'+h.bg+';color:'+h.tc+';border:1px solid '+h.bc+';border-radius:4px">'+h.label+'</span>';}).join("");
 hl.innerHTML='<div style="font-size:11px;font-weight:bold;color:#555;margin-bottom:5px">Legenda periodi critici</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">'+pills+'</div><p style="font-size:10px;color:#555;margin-bottom:3px">Festivita italiane: <b>25 aprile</b> - Festa della Liberazione | <b>2 giugno</b> - Festa della Repubblica</p><p style="font-size:10px;color:#999;font-style:italic">Pasqua 2027: 28 marzo - Pasqua 2028: 16 aprile - Periodi Ticino: date indicative</p>';
 
-window.click=click;window.goNav=goNav;window.setAc=setAc;window.doRefresh=doRefresh;window.doReset=doReset;
+window.dayClick=dayClick;window.goNav=goNav;window.setAc=setAc;window.doRefresh=doRefresh;window.doReset=doReset;
 load();
 </script>
 </body>
