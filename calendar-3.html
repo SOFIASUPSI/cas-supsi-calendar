@@ -10,7 +10,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;padding:16px}
 #W{max-width:960px;margin:0 auto;background:#fff;border-radius:10px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 .hdr{background:#151a41;border-radius:8px;padding:12px 16px;margin-bottom:11px}
 .nav{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.nbtn{background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:14px;font-family:Arial,sans-serif;color:#222;line-height:1}
+.nbtn{background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 16px;cursor:pointer;font-size:14px;font-family:Arial,sans-serif;color:#222}
 .nbtn:hover{background:#f0f0f0}
 .cbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
 .cbtn{font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:Arial,sans-serif}
@@ -24,43 +24,35 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;padding:16px}
 .dc.empty{visibility:hidden;cursor:default;pointer-events:none}
 .sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
 .hl{background:#f5f5f5;border-radius:8px;padding:10px 14px}
-.save-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:7px 12px;background:#f0f7ff;border:1px solid #b5d4f4;border-radius:6px;font-size:11px;color:#0C447C}
-.save-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.setup-box{background:#fff8e1;border:1px solid #EF9F27;border-radius:8px;padding:14px;margin-bottom:12px;font-size:12px;color:#633806}
+.sbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:7px 12px;background:#f0f7ff;border:1px solid #b5d4f4;border-radius:6px;font-size:11px;color:#0C447C}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 </style>
 </head>
 <body>
 <div id="W">
   <div class="hdr">
-    <p style="color:white;font-size:14px;font-weight:bold;margin-bottom:3px">Pianificatore CAS SUPSI &mdash; Calendario condiviso</p>
-    <p style="color:rgba(255,255,255,0.6);font-size:11px">Seleziona un corso e clicca su un giorno per assegnare o rimuovere una data &mdash; le modifiche sono visibili a tutti</p>
+    <p style="color:white;font-size:14px;font-weight:bold;margin-bottom:3px">Pianificatore CAS SUPSI - Calendario condiviso</p>
+    <p style="color:rgba(255,255,255,0.6);font-size:11px">Seleziona un corso e clicca su un giorno per assegnare o rimuovere una data - le modifiche sono visibili a tutti</p>
   </div>
-  <div id="setup-box" class="setup-box" style="display:none">
-    <b>&#9881; Prima configurazione</b><br>
-    Il calendario sta creando il database condiviso... attendere pochi secondi.
-  </div>
-  <div class="save-bar">
-    <span class="save-dot" id="save-dot" style="background:#888"></span>
-    <span id="save-msg">Connessione in corso...</span>
-    <button onclick="forceRefresh()" style="font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #b5d4f4;background:#fff;cursor:pointer;color:#0C447C">&#8635; Aggiorna</button>
-    <button onclick="resetAll()" style="font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;color:#c00">Azzera tutto</button>
+  <div class="sbar">
+    <span class="sdot" id="sdot" style="background:#888"></span>
+    <span id="smsg">Connessione in corso...</span>
+    <button onclick="doRefresh()" style="font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #b5d4f4;background:#fff;cursor:pointer;color:#0C447C;margin-left:auto">&#8635; Aggiorna</button>
+    <button onclick="doReset()" style="font-size:11px;padding:3px 10px;border-radius:4px;border:1px solid #ccc;background:#fff;cursor:pointer;color:#c00">Azzera tutto</button>
   </div>
   <div class="nav">
-    <button class="nbtn" onclick="nav(-1)">&laquo; Prec</button>
+    <button class="nbtn" onclick="goNav(-1)">&laquo; Prec</button>
     <span style="flex:1;text-align:center;font-size:13px;font-weight:bold;color:#222" id="nlbl"></span>
-    <button class="nbtn" onclick="nav(1)">Succ &raquo;</button>
+    <button class="nbtn" onclick="goNav(1)">Succ &raquo;</button>
   </div>
   <div class="cbar" id="cbar"></div>
   <div class="cal-row" id="calrow"></div>
   <div class="sgrid" id="sgrid"></div>
   <div class="hl" id="hleg"></div>
 </div>
-
 <script>
-// ── CONFIGURAZIONE ──────────────────────────────────────────
-var API_KEY = "$2a$10$9vktGCiQetcYmeUugA5S5eCPO.AOJdWfdVK54l2gjuvnvVRrbRAz6";
-var BIN_ID  = "INSERISCI_BIN_ID_QUI"; // verrà sostituito dopo il primo avvio
-// ────────────────────────────────────────────────────────────
+var AKEY="$2a$10$9vktGCiQetcYmeUugA5S5eCPO.AOJdWfdVK54l2gjuvnvVRrbRAz6";
+var BID="69e5f6d736566621a8d1013a";
 
 var C=[
   {id:"TMB",  name:"CAS TMB",        c:"#378ADD",c50:"#E6F1FB",c800:"#0C447C"},
@@ -72,12 +64,12 @@ var C=[
 var MN=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 var DN=["Lu","Ma","Me","Gi","Ve","Sa","Do"];
 var HT={
-  autumn:    {label:"Vacanze autunnali",   bg:"#FAEEDA",bc:"#EF9F27",tc:"#633806"},
-  christmas: {label:"Natale / Capodanno",  bg:"#FCEBEB",bc:"#E24B4A",tc:"#501313"},
-  carnival:  {label:"Carnevale",           bg:"#EEEDFE",bc:"#7F77DD",tc:"#26215C"},
-  easter:    {label:"Pasqua",              bg:"#EAF3DE",bc:"#639922",tc:"#173404"},
-  summer:    {label:"Estate",              bg:"#FAEEDA",bc:"#EF9F27",tc:"#633806"},
-  it_holiday:{label:"Festivita italiana",  bg:"#E6F1FB",bc:"#378ADD",tc:"#0C447C"}
+  autumn:    {label:"Vacanze autunnali",  bg:"#FAEEDA",bc:"#EF9F27",tc:"#633806"},
+  christmas: {label:"Natale / Capodanno", bg:"#FCEBEB",bc:"#E24B4A",tc:"#501313"},
+  carnival:  {label:"Carnevale",          bg:"#EEEDFE",bc:"#7F77DD",tc:"#26215C"},
+  easter:    {label:"Pasqua",             bg:"#EAF3DE",bc:"#639922",tc:"#173404"},
+  summer:    {label:"Estate",             bg:"#FAEEDA",bc:"#EF9F27",tc:"#633806"},
+  it_hol:    {label:"Festivita italiana", bg:"#E6F1FB",bc:"#378ADD",tc:"#0C447C"}
 };
 var HR=[
   {t:"autumn",   s:new Date(2026,9,12), e:new Date(2026,9,23)},
@@ -93,187 +85,137 @@ var HR=[
   {t:"autumn",   s:new Date(2028,9,14), e:new Date(2028,9,25)},
   {t:"christmas",s:new Date(2028,11,21),e:new Date(2029,0,7)}
 ];
-var IT_HOLIDAYS={};
+var ITH={};
 [2026,2027,2028,2029].forEach(function(y){
-  IT_HOLIDAYS[y+"-4-25"]="25 apr - Festa della Liberazione";
-  IT_HOLIDAYS[y+"-6-2"] ="2 giu - Festa della Repubblica";
+  ITH[y+"-4-25"]="25 apr - Festa della Liberazione";
+  ITH[y+"-6-2"] ="2 giu - Festa della Repubblica";
 });
 
-var vy=2026,vm=8,ac="TMB",saving=false;
-var sched={};
-C.forEach(function(c){sched[c.id]={};});
+var vy=2026,vm=8,ac="TMB",busy=false;
+var days={};
+C.forEach(function(c){days[c.id]={};});
 
-// ── JSONBin helpers ──────────────────────────────────────────
-function getBinId(){
-  if(BIN_ID!=="INSERISCI_BIN_ID_QUI") return BIN_ID;
-  return localStorage.getItem("cas_supsi_bin_id")||null;
+function st(col,msg){
+  document.getElementById("sdot").style.background=col;
+  document.getElementById("smsg").textContent=msg;
 }
 
-async function createBin(){
-  document.getElementById("setup-box").style.display="block";
-  var resp=await fetch("https://api.jsonbin.io/v3/b",{
-    method:"POST",
-    headers:{"Content-Type":"application/json","X-Master-Key":API_KEY,"X-Bin-Name":"cas-supsi-calendar","X-Bin-Private":"false"},
-    body:JSON.stringify({sched:sched})
-  });
-  var data=await resp.json();
-  var id=data.metadata&&data.metadata.id?data.metadata.id:null;
-  if(id){
-    localStorage.setItem("cas_supsi_bin_id",id);
-    document.getElementById("setup-box").innerHTML=
-      "<b>&#10003; Database creato!</b><br>Il tuo Bin ID &egrave;: <code style='background:#fff;padding:2px 6px;border-radius:4px;font-size:12px;user-select:all'>"+id+"</code><br>"+
-      "Copia questo ID e mandalo a Sofia cos&igrave; pu&ograve; aggiornare il file per tutti.";
-  }
-  return id;
-}
-
-async function readBin(){
-  var id=getBinId();
-  if(!id)return null;
-  var resp=await fetch("https://api.jsonbin.io/v3/b/"+id+"/latest",{
-    headers:{"X-Master-Key":API_KEY}
-  });
-  var data=await resp.json();
-  return data.record||null;
-}
-
-async function writeBin(){
-  var id=getBinId();
-  if(!id)return false;
-  var resp=await fetch("https://api.jsonbin.io/v3/b/"+id,{
-    method:"PUT",
-    headers:{"Content-Type":"application/json","X-Master-Key":API_KEY},
-    body:JSON.stringify({sched:sched})
-  });
-  return resp.ok;
-}
-// ────────────────────────────────────────────────────────────
-
-function setStatus(color,msg){
-  document.getElementById("save-dot").style.background=color;
-  document.getElementById("save-msg").textContent=msg;
-}
-
-async function saveData(){
-  if(saving)return;
-  saving=true;
-  setStatus("#EF9F27","Salvataggio in corso...");
+async function load(){
+  st("#888","Caricamento...");
   try{
-    var ok=await writeBin();
-    if(ok){
+    var r=await fetch("https://api.jsonbin.io/v3/b/"+BID+"/latest",{headers:{"X-Master-Key":AKEY}});
+    var d=await r.json();
+    if(d.record&&d.record.days){
+      C.forEach(function(c){if(d.record.days[c.id])days[c.id]=d.record.days[c.id];});
+    }
+    var tot=C.reduce(function(a,c){return a+Object.keys(days[c.id]).length;},0);
+    st("#1D9E75",tot>0?"Caricati "+tot+" giorni":"Nessun dato - inizia ad assegnare le date");
+  }catch(e){st("#E24B4A","Errore connessione");}
+  render();
+}
+
+async function save(){
+  if(busy)return;
+  busy=true;
+  st("#EF9F27","Salvataggio...");
+  try{
+    var r=await fetch("https://api.jsonbin.io/v3/b/"+BID,{
+      method:"PUT",
+      headers:{"Content-Type":"application/json","X-Master-Key":AKEY},
+      body:JSON.stringify({days:days})
+    });
+    if(r.ok){
       var now=new Date();
       var ts=now.getDate()+"/"+(now.getMonth()+1)+"/"+now.getFullYear()+" "+now.getHours()+":"+String(now.getMinutes()).padStart(2,"0");
-      setStatus("#1D9E75","Salvato e condiviso \u2014 "+ts);
-    }else setStatus("#E24B4A","Errore nel salvataggio");
-  }catch(e){setStatus("#E24B4A","Errore: "+e.message);}
-  saving=false;
+      st("#1D9E75","Salvato - "+ts);
+    }else{st("#E24B4A","Errore salvataggio");}
+  }catch(e){st("#E24B4A","Errore: "+e.message);}
+  busy=false;
 }
 
-async function loadData(){
-  setStatus("#888","Caricamento dati condivisi...");
-  try{
-    var id=getBinId();
-    if(!id){id=await createBin();}
-    var record=await readBin();
-    if(record&&record.sched){
-      C.forEach(function(c){if(record.sched[c.id])sched[c.id]=record.sched[c.id];});
-    }
-    var total=C.reduce(function(acc,c){return acc+Object.keys(sched[c.id]).length;},0);
-    setStatus("#1D9E75",total>0?"Dati caricati: "+total+" giorni assegnati":"Nessun dato ancora \u2014 inizia ad assegnare le date");
-    document.getElementById("setup-box").style.display="none";
-  }catch(e){setStatus("#E24B4A","Errore connessione: "+e.message);}
+async function doRefresh(){
+  C.forEach(function(c){days[c.id]={};});
+  await load();
+}
+
+async function doReset(){
+  if(!confirm("Cancellare tutti i dati per tutti? Non e' reversibile."))return;
+  C.forEach(function(c){days[c.id]={};});
   render();
+  await save();
 }
 
-;});
-  await loadData();
-}
-
-// ── Calendario ───────────────────────────────────────────────
 function ght(d){for(var i=0;i<HR.length;i++){if(d>=HR[i].s&&d<=HR[i].e)return HR[i].t;}return null;}
-function itHol(d){var k=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();return IT_HOLIDAYS[k]||null;}
+function ith(d){return ITH[d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()]||null;}
 function dk(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
-function isWknd(d){return d.getDay()===6||d.getDay()===0;}
-function getSorted(cid){
-  return Object.keys(sched[cid]).sort(function(a,b){
-    var ap=a.split("-").map(Number),bp=b.split("-").map(Number);
-    if(ap[0]!==bp[0])return ap[0]-bp[0];
-    if(ap[1]!==bp[1])return ap[1]-bp[1];
-    return ap[2]-bp[2];
-  });
-}
-function renum(cid){var ks=getSorted(cid);sched[cid]={};ks.forEach(function(k,i){sched[cid][k]=i+1;});}
+function isW(d){return d.getDay()===6||d.getDay()===0;}
 
-async function hclick(key){
-  var cid=ac;
-  if(sched[cid][key]!==undefined){delete sched[cid][key];renum(cid);}
-  else{var cnt=Object.keys(sched[cid]).length;sched[cid][key]=cnt+1;renum(cid);}
+async function click(key){
+  if(days[ac][key]!==undefined){delete days[ac][key];}
+  else{days[ac][key]=1;}
   render();
-  await saveData();
+  await save();
 }
-function nav(d){
-  vm+=d;
+
+function goNav(n){
+  vm+=n;
   if(vm>11){vm-=12;vy++;}
   if(vm<0){vm+=12;vy--;}
   if(vy<2026||(vy===2026&&vm<8)){vy=2026;vm=8;}
   if(vy>2028||(vy===2028&&vm>11)){vy=2028;vm=11;}
   render();
 }
+
 function setAc(cid){ac=cid;render();}
-async function resetAll(){
-  if(!confirm("Sei sicura di voler cancellare tutti i dati per tutti? L'operazione non e' reversibile."))return;
-  C.forEach(function(c){sched[c.id]={};});
-  render();
-  await saveData();
-}
+
 function buildWeeks(y,m){
   var first=new Date(y,m,1),last=new Date(y,m+1,0);
-  var sd=(first.getDay()+6)%7;
-  var days=[];
-  for(var i=0;i<sd;i++)days.push(null);
-  for(var dd=1;dd<=last.getDate();dd++)days.push(new Date(y,m,dd));
-  while(days.length%7!==0)days.push(null);
-  var wks=[];for(var i=0;i<days.length;i+=7)wks.push(days.slice(i,i+7));
+  var sd=(first.getDay()+6)%7,arr=[];
+  for(var i=0;i<sd;i++)arr.push(null);
+  for(var dd=1;dd<=last.getDate();dd++)arr.push(new Date(y,m,dd));
+  while(arr.length%7!==0)arr.push(null);
+  var wks=[];
+  for(var i=0;i<arr.length;i+=7)wks.push(arr.slice(i,i+7));
   return wks;
 }
+
 function rdDay(d){
   if(!d)return'<div class="dc empty"></div>';
   var key=dk(d);
   var ht=ght(d),hi=ht?HT[ht]:null;
-  var itH=itHol(d);
-  var wknd=isWknd(d);
-  var asgnd=C.filter(function(c){return sched[c.id][key]!==undefined;});
+  var ih=ith(d);
+  var wknd=isW(d);
+  var asgnd=C.filter(function(c){return days[c.id][key]!==undefined;});
   var isSum=d.getMonth()===6||d.getMonth()===7;
-  var activeH=hi||(isSum?HT.summer:null)||(itH?HT.it_holiday:null);
-  var bg;
+  var bg,bord="";
   if(asgnd.length===1)bg=asgnd[0].c50;
   else if(asgnd.length>1)bg="#e8e8e8";
   else if(hi)bg=hi.bg;
-  else if(itH)bg=HT.it_holiday.bg;
+  else if(ih)bg=HT.it_hol.bg;
   else if(wknd)bg="#f0f0f0";
   else bg="#fff";
-  var bord="";
   if(asgnd.length===0){
     if(hi)bord="border-top:2px solid "+hi.bc+";";
-    else if(itH)bord="border-top:2px solid "+HT.it_holiday.bc+";";
+    else if(ih)bord="border-top:2px solid "+HT.it_hol.bc+";";
+    else if(isSum)bord="border-top:2px solid #EF9F27;";
   }
-  var titleParts=[];
-  if(asgnd.length>0)asgnd.forEach(function(c){titleParts.push(c.name+" G"+sched[c.id][key]);});
-  if(itH)titleParts.push(itH);
-  else if(activeH&&asgnd.length===0)titleParts.push("Periodo critico: "+activeH.label);
-  if(titleParts.length===0)titleParts.push("Clicca per assegnare");
-  var title=titleParts.join(" - ");
-  var numColor=wknd?"#222":(itH?"#0C447C":"#888");
-  var numWeight=(wknd||itH)?"bold":"normal";
-  var h='<div class="dc" onclick="hclick(\''+key+'\')" title="'+title+'" style="background:'+bg+';'+bord+'">';
-  h+='<span style="font-size:11px;font-weight:'+numWeight+';color:'+numColor+'">'+d.getDate()+'</span>';
+  var tips=[];
+  if(asgnd.length>0)asgnd.forEach(function(c){tips.push(c.name);});
+  if(ih)tips.push(ih);
+  else if(hi)tips.push("Periodo critico: "+hi.label);
+  else if(isSum)tips.push("Estate");
+  var title=tips.length>0?tips.join(" - "):"Clicca per assegnare";
+  var nc=wknd?"#222":(ih?"#0C447C":"#888");
+  var nw=(wknd||ih)?"bold":"normal";
+  var h='<div class="dc" onclick="click(\''+key+'\')" title="'+title+'" style="background:'+bg+';'+bord+'">';
+  h+='<span style="font-size:11px;font-weight:'+nw+';color:'+nc+'">'+d.getDate()+'</span>';
   if(asgnd.length>0){
     h+='<div style="display:flex;gap:2px;justify-content:center;flex-wrap:wrap">';
     asgnd.forEach(function(c){
-      h+='<span style="font-size:8px;font-weight:bold;color:white;background:'+c.c+';border-radius:3px;padding:0 3px;line-height:13px">'+sched[c.id][key]+'</span>';
+      h+='<span style="font-size:8px;font-weight:bold;color:white;background:'+c.c+';border-radius:3px;padding:0 3px;line-height:13px" title="'+c.name+'">&#9679;</span>';
     });
     h+='</div>';
-  }else if(itH){
+  }else if(ih){
     h+='<div style="width:5px;height:5px;border-radius:50%;background:#378ADD"></div>';
   }else{
     h+='<div style="height:13px"></div>';
@@ -281,17 +223,18 @@ function rdDay(d){
   h+='</div>';
   return h;
 }
+
 function render(){
   var m2=vm+1>11?vm-11:vm+1,y2=vm+1>11?vy+1:vy;
-  document.getElementById("nlbl").textContent=MN[vm]+" "+vy+"  \u2014  "+MN[m2]+" "+y2;
+  document.getElementById("nlbl").textContent=MN[vm]+" "+vy+" - "+MN[m2]+" "+y2;
   var cb=document.getElementById("cbar");
   cb.innerHTML=C.map(function(c){
-    var isA=c.id===ac,cnt=Object.keys(sched[c.id]).length;
-    return '<button class="cbtn" onclick="setAc(\''+c.id+'\')" style="border:2px solid '+(isA?c.c:'#ccc')+';background:'+(isA?c.c50:'#fff')+';color:'+(isA?c.c800:'#666')+'">'+c.name+' '+cnt+' gg</button>';
+    var isA=c.id===ac,cnt=Object.keys(days[c.id]).length;
+    return '<button class="cbtn" onclick="setAc(\''+c.id+'\')" style="border:2px solid '+(isA?c.c:'#ccc')+';background:'+(isA?c.c50:'#fff')+';color:'+(isA?c.c800:'#666')+'">'+c.name+(cnt>0?' ('+cnt+')':'')+'</button>';
   }).join("");
   var cr=document.getElementById("calrow");cr.innerHTML="";
-  [[vy,vm],[y2,m2]].forEach(function(pair){
-    var y=pair[0],m=pair[1],wks=buildWeeks(y,m);
+  [[vy,vm],[y2,m2]].forEach(function(p){
+    var y=p[0],m=p[1],wks=buildWeeks(y,m);
     var h='<div class="cal"><div class="cal-title">'+MN[m]+' '+y+'</div><div class="wk-grid">';
     DN.forEach(function(n,i){h+='<div class="dh" style="color:'+(i>=5?"#555":"#aaa")+';font-weight:'+(i>=5?"bold":"normal")+'">'+n+'</div>';});
     h+='</div>';
@@ -299,39 +242,22 @@ function render(){
     h+='</div>';
     cr.innerHTML+=h;
   });
-  var sg=document.getElementById("sgrid");
-  sg.innerHTML=C.map(function(c){
-    var ks=getSorted(c.id),cnt=ks.length,sem=Math.floor(cnt/3),ex=cnt%3,range="Nessun giorno assegnato";
-    if(ks.length>0){var f=ks[0].split("-"),l=ks[ks.length-1].split("-");range=f[2]+"/"+f[1]+"/"+f[0]+" &rarr; "+l[2]+"/"+l[1]+"/"+l[0];}
-    return '<div style="background:#fff;border:1px solid #ddd;border-top:2px solid '+c.c+';border-radius:6px;padding:9px 12px">'+
-      '<div style="font-size:11px;font-weight:bold;color:#222;margin-bottom:2px">'+c.name+'</div>'+
-      '<div style="font-size:10px;color:#555;margin-bottom:3px">'+range+'</div>'+
-      '<div style="font-size:10px;color:#888;margin-bottom:1px">'+cnt+' giorni assegnati</div>'+
-      '<div style="font-size:10px;color:#aaa;margin-bottom:4px">= '+sem+' seminari'+(ex>0?' + '+ex+' gg':'')+'</div>'+
-      '<div style="background:#eee;border-radius:4px;height:4px;overflow:hidden"><div style="background:'+c.c+';width:'+Math.min(100,Math.round(cnt/27*100))+'%;height:100%;border-radius:4px"></div></div>'+
-      '</div>';
+  document.getElementById("sgrid").innerHTML=C.map(function(c){
+    var ks=Object.keys(days[c.id]).sort(),cnt=ks.length,range="Nessun giorno assegnato";
+    if(cnt>0){var f=ks[0].split("-"),l=ks[cnt-1].split("-");range=f[2]+"/"+f[1]+"/"+f[0]+" &rarr; "+l[2]+"/"+l[1]+"/"+l[0];}
+    return '<div style="background:#fff;border:1px solid #ddd;border-top:3px solid '+c.c+';border-radius:6px;padding:9px 12px">'+
+      '<div style="font-size:11px;font-weight:bold;color:#222;margin-bottom:3px">'+c.name+'</div>'+
+      '<div style="font-size:10px;color:#555;margin-bottom:2px">'+range+'</div>'+
+      '<div style="font-size:10px;color:#888">'+cnt+' giorni assegnati</div></div>';
   }).join("");
 }
+
 var hl=document.getElementById("hleg"),seen={};
-var pills=["autumn","christmas","carnival","easter","summer","it_holiday"].filter(function(k){if(!seen[HT[k].label]){seen[HT[k].label]=1;return true;}return false;}).map(function(k){var h=HT[k];return'<span style="font-size:10px;padding:2px 8px;background:'+h.bg+';color:'+h.tc+';border:1px solid '+h.bc+';border-radius:4px">'+h.label+'</span>';}).join("");
-hl.innerHTML='<div style="font-size:11px;font-weight:bold;color:#555;margin-bottom:5px">Legenda periodi critici</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">'+pills+'</div><div style="font-size:10px;color:#555;margin-bottom:3px">Festivit&agrave; italiane: <b>25 aprile</b> &mdash; Festa della Liberazione &nbsp;|&nbsp; <b>2 giugno</b> &mdash; Festa della Repubblica</div><p style="font-size:10px;color:#999;font-style:italic">Pasqua 2027: 28 marzo &middot; Pasqua 2028: 16 aprile &middot; Periodi Ticino: date indicative</p>';
+var pills=["autumn","christmas","carnival","easter","summer","it_hol"].filter(function(k){if(!seen[HT[k].label]){seen[HT[k].label]=1;return true;}return false;}).map(function(k){var h=HT[k];return'<span style="font-size:10px;padding:2px 8px;background:'+h.bg+';color:'+h.tc+';border:1px solid '+h.bc+';border-radius:4px">'+h.label+'</span>';}).join("");
+hl.innerHTML='<div style="font-size:11px;font-weight:bold;color:#555;margin-bottom:5px">Legenda periodi critici</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">'+pills+'</div><p style="font-size:10px;color:#555;margin-bottom:3px">Festivita italiane: <b>25 aprile</b> - Festa della Liberazione | <b>2 giugno</b> - Festa della Repubblica</p><p style="font-size:10px;color:#999;font-style:italic">Pasqua 2027: 28 marzo - Pasqua 2028: 16 aprile - Periodi Ticino: date indicative</p>';
 
-
-async function forceRefresh(){
-  try{
-    setStatus("#888","Aggiornamento...");
-    var record=await readBin();
-    if(record&&record.sched){
-      C.forEach(function(c){if(record.sched[c.id])sched[c.id]=record.sched[c.id];});
-    }
-    var total=C.reduce(function(acc,c){return acc+Object.keys(sched[c.id]).length;},0);
-    setStatus("#1D9E75",total>0?"Aggiornato: "+total+" giorni":"Nessun dato");
-    render();
-  }catch(e){setStatus("#E24B4A","Errore: "+e.message);}
-}
-window.hclick=hclick;window.nav=nav;window.setAc=setAc;window.resetAll=resetAll;window.forceRefresh=forceRefresh;
-loadData();
-
+window.click=click;window.goNav=goNav;window.setAc=setAc;window.doRefresh=doRefresh;window.doReset=doReset;
+load();
 </script>
 </body>
 </html>
