@@ -22,7 +22,7 @@ body{font-family:Arial,sans-serif;background:#f4f4f4;padding:16px}
 .dc{height:46px;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:4px 2px;cursor:pointer}
 .dc:hover{filter:brightness(0.88)}
 .dc.empty{visibility:hidden;cursor:default;pointer-events:none}
-.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:10px}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:10px}
 .hl{background:#f5f5f5;border-radius:8px;padding:10px 14px}
 .sbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:7px 12px;background:#f0f7ff;border:1px solid #b5d4f4;border-radius:6px;font-size:11px;color:#0C447C}
 .sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
@@ -55,41 +55,57 @@ var AKEY="$2a$10$9vktGCiQetcYmeUugA5S5eCPO.AOJdWfdVK54l2gjuvnvVRrbRAz6";
 var BID="69e5f6d736566621a8d1013a";
 
 var C=[
-  {id:"TMB",  name:"CAS TMB",        c:"#378ADD",c50:"#E6F1FB",c800:"#0C447C"},
-  {id:"TMA",  name:"CAS TMA",        c:"#EF9F27",c50:"#FAEEDA",c800:"#633806"},
-  {id:"MSK",  name:"CAS MSK",        c:"#1D9E75",c50:"#E1F5EE",c800:"#085041"},
-  {id:"ANGIO",name:"CAS Angiologia", c:"#7F77DD",c50:"#EEEDFE",c800:"#26215C"},
-  {id:"SF",   name:"CAS Sal. Femm.", c:"#D4537E",c50:"#FBEAF0",c800:"#4B1528"}
+  {id:"TMB",  name:"CAS TMB",          resp:"Paolo Mastromarchi", c:"#378ADD",c50:"#E6F1FB",c800:"#0C447C"},
+  {id:"TMA",  name:"CAS TMA",          resp:"Daniele Moretti",    c:"#EF9F27",c50:"#FAEEDA",c800:"#633806"},
+  {id:"MSK",  name:"CAS MSK",          resp:"Davide Bettio",      c:"#1D9E75",c50:"#E1F5EE",c800:"#085041"},
+  {id:"ANGIO",name:"CAS Angiologia",   resp:"Gianpiero Capra",    c:"#7F77DD",c50:"#EEEDFE",c800:"#26215C"},
+  {id:"SF",   name:"CAS Sal. Femm.",   resp:"Marco Cattaneo",     c:"#D4537E",c50:"#FBEAF0",c800:"#4B1528"},
+  {id:"EFA",  name:"Es. Fis. Adattato",resp:"Marco Cattaneo",     c:"#2BB5A0",c50:"#E0F5F3",c800:"#0A4A42"}
 ];
 var MN=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 var DN=["Lu","Ma","Me","Gi","Ve","Sa","Do"];
-var HT={
-  autumn:    {label:"Vacanze autunnali",  bg:"#FAEEDA",bc:"#EF9F27",tc:"#633806"},
-  christmas: {label:"Natale / Capodanno", bg:"#FCEBEB",bc:"#E24B4A",tc:"#501313"},
-  carnival:  {label:"Carnevale",          bg:"#EEEDFE",bc:"#7F77DD",tc:"#26215C"},
-  easter:    {label:"Pasqua",             bg:"#EAF3DE",bc:"#639922",tc:"#173404"},
-  summer:    {label:"Estate",             bg:"#FAEEDA",bc:"#EF9F27",tc:"#633806"},
-  it_hol:    {label:"Festivita italiana", bg:"#E6F1FB",bc:"#378ADD",tc:"#0C447C"}
-};
+
+// Colore unico per tutte le vacanze, ponti e festivita (calendario scolastico ticinese)
+var HOL_BG="#FEF3E2",HOL_BC="#D4900A",HOL_TC="#7A4F00";
+
+// Calendario scolastico ticinese + 2 festivita italiane (25 apr / 2 giu)
 var HR=[
-  {t:"autumn",   s:new Date(2026,9,12), e:new Date(2026,9,23)},
-  {t:"christmas",s:new Date(2026,11,21),e:new Date(2027,0,7)},
-  {t:"carnival", s:new Date(2027,1,26), e:new Date(2027,2,6)},
-  {t:"easter",   s:new Date(2027,2,25), e:new Date(2027,3,5)},
-  {t:"summer",   s:new Date(2027,5,28), e:new Date(2027,7,16)},
-  {t:"autumn",   s:new Date(2027,9,11), e:new Date(2027,9,22)},
-  {t:"christmas",s:new Date(2027,11,20),e:new Date(2028,0,8)},
-  {t:"carnival", s:new Date(2028,1,22), e:new Date(2028,2,2)},
-  {t:"easter",   s:new Date(2028,3,13), e:new Date(2028,3,22)},
-  {t:"summer",   s:new Date(2028,5,29), e:new Date(2028,7,17)},
-  {t:"autumn",   s:new Date(2028,9,14), e:new Date(2028,9,25)},
-  {t:"christmas",s:new Date(2028,11,21),e:new Date(2029,0,7)}
+  // --- 2026 ---
+  {s:new Date(2026,9,12), e:new Date(2026,9,23),  l:"Vacanze autunnali"},
+  {s:new Date(2026,10,1), e:new Date(2026,10,2),  l:"Ognissanti / Morti"},
+  {s:new Date(2026,11,8), e:new Date(2026,11,8),  l:"Immacolata"},
+  {s:new Date(2026,11,24),e:new Date(2027,0,6),   l:"Natale / Capodanno"},
+  // --- 2027 ---
+  {s:new Date(2027,1,12), e:new Date(2027,1,16),  l:"Carnevale"},        // Martedi Grasso 16 feb (Pasqua 28 mar)
+  {s:new Date(2027,2,19), e:new Date(2027,2,19),  l:"San Giuseppe"},
+  {s:new Date(2027,2,26), e:new Date(2027,3,6),   l:"Pasqua"},           // Pasqua 28 mar + Pasquetta
+  {s:new Date(2027,3,25), e:new Date(2027,3,25),  l:"Festa della Liberazione"},
+  {s:new Date(2027,4,6),  e:new Date(2027,4,6),   l:"Ascensione"},       // Pasqua+39
+  {s:new Date(2027,4,16), e:new Date(2027,4,17),  l:"Pentecoste"},       // Pasqua+49/50
+  {s:new Date(2027,4,27), e:new Date(2027,4,27),  l:"Corpus Domini"},    // Pasqua+60
+  {s:new Date(2027,5,2),  e:new Date(2027,5,2),   l:"Festa della Repubblica"},
+  {s:new Date(2027,5,29), e:new Date(2027,5,29),  l:"SS. Pietro e Paolo"},
+  {s:new Date(2027,6,1),  e:new Date(2027,7,22),  l:"Estate"},
+  {s:new Date(2027,9,11), e:new Date(2027,9,22),  l:"Vacanze autunnali"},
+  {s:new Date(2027,10,1), e:new Date(2027,10,2),  l:"Ognissanti / Morti"},
+  {s:new Date(2027,11,8), e:new Date(2027,11,8),  l:"Immacolata"},
+  {s:new Date(2027,11,24),e:new Date(2028,0,6),   l:"Natale / Capodanno"},
+  // --- 2028 ---
+  {s:new Date(2028,1,22), e:new Date(2028,1,29),  l:"Carnevale"},        // Martedi Grasso 29 feb (anno bisestile, Pasqua 16 apr)
+  {s:new Date(2028,2,19), e:new Date(2028,2,19),  l:"San Giuseppe"},
+  {s:new Date(2028,3,13), e:new Date(2028,3,22),  l:"Pasqua"},           // Pasqua 16 apr + Pasquetta
+  {s:new Date(2028,3,25), e:new Date(2028,3,25),  l:"Festa della Liberazione"},
+  {s:new Date(2028,4,25), e:new Date(2028,4,25),  l:"Ascensione"},       // Pasqua+39
+  {s:new Date(2028,5,2),  e:new Date(2028,5,2),   l:"Festa della Repubblica"},
+  {s:new Date(2028,5,4),  e:new Date(2028,5,5),   l:"Pentecoste"},       // Pasqua+49/50
+  {s:new Date(2028,5,15), e:new Date(2028,5,15),  l:"Corpus Domini"},    // Pasqua+60
+  {s:new Date(2028,5,29), e:new Date(2028,5,29),  l:"SS. Pietro e Paolo"},
+  {s:new Date(2028,6,1),  e:new Date(2028,7,22),  l:"Estate"},
+  {s:new Date(2028,9,14), e:new Date(2028,9,25),  l:"Vacanze autunnali"},
+  {s:new Date(2028,10,1), e:new Date(2028,10,2),  l:"Ognissanti / Morti"},
+  {s:new Date(2028,11,8), e:new Date(2028,11,8),  l:"Immacolata"},
+  {s:new Date(2028,11,24),e:new Date(2029,0,6),   l:"Natale / Capodanno"}
 ];
-var ITH={};
-[2026,2027,2028,2029].forEach(function(y){
-  ITH[y+"-4-25"]="25 apr - Festa della Liberazione";
-  ITH[y+"-6-2"] ="2 giu - Festa della Repubblica";
-});
 
 var vy=2026,vm=8,ac="TMB",busy=false;
 var days={};
@@ -145,8 +161,10 @@ async function doReset(){
   await save();
 }
 
-function ght(d){for(var i=0;i<HR.length;i++){if(d>=HR[i].s&&d<=HR[i].e)return HR[i].t;}return null;}
-function ith(d){return ITH[d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()]||null;}
+function ght(d){
+  for(var i=0;i<HR.length;i++){if(d>=HR[i].s&&d<=HR[i].e)return HR[i].l;}
+  return null;
+}
 function dk(d){return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();}
 function isW(d){return d.getDay()===6||d.getDay()===0;}
 
@@ -182,31 +200,22 @@ function buildWeeks(y,m){
 function rdDay(d){
   if(!d)return'<div class="dc empty"></div>';
   var key=dk(d);
-  var ht=ght(d),hi=ht?HT[ht]:null;
-  var ih=ith(d);
+  var hol=ght(d);
   var wknd=isW(d);
   var asgnd=C.filter(function(c){return days[c.id][key]!==undefined;});
-  var isSum=d.getMonth()===6||d.getMonth()===7;
   var bg,bord="";
   if(asgnd.length===1)bg=asgnd[0].c50;
   else if(asgnd.length>1)bg="#e8e8e8";
-  else if(hi)bg=hi.bg;
-  else if(ih)bg=HT.it_hol.bg;
+  else if(hol)bg=HOL_BG;
   else if(wknd)bg="#f0f0f0";
   else bg="#fff";
-  if(asgnd.length===0){
-    if(hi)bord="border-top:2px solid "+hi.bc+";";
-    else if(ih)bord="border-top:2px solid "+HT.it_hol.bc+";";
-    else if(isSum)bord="border-top:2px solid #EF9F27;";
-  }
+  if(asgnd.length===0&&hol)bord="border-top:2px solid "+HOL_BC+";";
   var tips=[];
   if(asgnd.length>0)asgnd.forEach(function(c){tips.push(c.name);});
-  if(ih)tips.push(ih);
-  else if(hi)tips.push("Periodo critico: "+hi.label);
-  else if(isSum)tips.push("Estate");
-  var title=tips.length>0?tips.join(" - "):"Clicca per assegnare";
-  var nc=wknd?"#222":(ih?"#0C447C":"#888");
-  var nw=(wknd||ih)?"bold":"normal";
+  if(hol)tips.push(hol);
+  var title=tips.length>0?tips.join(" | "):"Clicca per assegnare";
+  var nc=wknd?"#222":(hol?HOL_TC:"#888");
+  var nw=(wknd||hol)?"bold":"normal";
   var h='<div class="dc" onclick="dayClick(\''+key+'\')" title="'+title+'" style="background:'+bg+';'+bord+'">';
   h+='<span style="font-size:11px;font-weight:'+nw+';color:'+nc+'">'+d.getDate()+'</span>';
   if(asgnd.length>0){
@@ -215,8 +224,8 @@ function rdDay(d){
       h+='<span style="font-size:8px;font-weight:bold;color:white;background:'+c.c+';border-radius:3px;padding:0 3px;line-height:13px" title="'+c.name+'">&#9679;</span>';
     });
     h+='</div>';
-  }else if(ih){
-    h+='<div style="width:5px;height:5px;border-radius:50%;background:#378ADD"></div>';
+  }else if(hol){
+    h+='<div style="width:5px;height:5px;border-radius:50%;background:'+HOL_BC+'"></div>';
   }else{
     h+='<div style="height:13px"></div>';
   }
@@ -267,16 +276,22 @@ function render(){
       dateList+='</div>';
     }
     return '<div style="background:#fff;border:1px solid #ddd;border-top:3px solid '+c.c+';border-radius:6px;padding:9px 12px">'+
-      '<div style="font-size:11px;font-weight:bold;color:#222;margin-bottom:3px">'+c.name+'</div>'+
+      '<div style="font-size:11px;font-weight:bold;color:#222;margin-bottom:1px">'+c.name+'</div>'+
+      '<div style="font-size:10px;color:'+c.c+';margin-bottom:4px;font-style:italic">'+c.resp+'</div>'+
       '<div style="font-size:10px;color:#555;margin-bottom:2px">'+range+'</div>'+
       '<div style="font-size:10px;color:#888">'+cnt+' giorni assegnati</div>'+
       dateList+'</div>';
   }).join("");
 }
 
-var hl=document.getElementById("hleg"),seen={};
-var pills=["autumn","christmas","carnival","easter","summer","it_hol"].filter(function(k){if(!seen[HT[k].label]){seen[HT[k].label]=1;return true;}return false;}).map(function(k){var h=HT[k];return'<span style="font-size:10px;padding:2px 8px;background:'+h.bg+';color:'+h.tc+';border:1px solid '+h.bc+';border-radius:4px">'+h.label+'</span>';}).join("");
-hl.innerHTML='<div style="font-size:11px;font-weight:bold;color:#555;margin-bottom:5px">Legenda periodi critici</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">'+pills+'</div><p style="font-size:10px;color:#555;margin-bottom:3px">Festivita italiane: <b>25 aprile</b> - Festa della Liberazione | <b>2 giugno</b> - Festa della Repubblica</p><p style="font-size:10px;color:#999;font-style:italic">Pasqua 2027: 28 marzo - Pasqua 2028: 16 aprile - Periodi Ticino: date indicative</p>';
+var hleg=document.getElementById("hleg");
+hleg.innerHTML=
+  '<div style="font-size:11px;font-weight:bold;color:#555;margin-bottom:5px">Legenda periodi critici</div>'+
+  '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px">'+
+  '<span style="font-size:10px;padding:2px 8px;background:'+HOL_BG+';color:'+HOL_TC+';border:1px solid '+HOL_BC+';border-radius:4px">Vacanze / Festivita / Ponti</span>'+
+  '</div>'+
+  '<p style="font-size:10px;color:#555;margin-bottom:3px">Calendario scolastico ticinese: vacanze autunnali, Ognissanti/Morti, Immacolata, Natale/Capodanno, Carnevale, San Giuseppe, Pasqua/Pasquetta, Ascensione, Pentecoste, Corpus Domini, SS. Pietro e Paolo, Estate &mdash; piu <b>25 aprile</b> (Liberazione) e <b>2 giugno</b> (Repubblica).</p>'+
+  '<p style="font-size:10px;color:#999;font-style:italic">Pasqua 2027: 28 marzo &bull; Pasqua 2028: 16 aprile &bull; 2028 anno bisestile &bull; Date indicate su calendario scolastico ticinese</p>';
 
 window.dayClick=dayClick;window.goNav=goNav;window.setAc=setAc;window.doRefresh=doRefresh;window.doReset=doReset;
 load();
