@@ -8,29 +8,28 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#F7F6F3;
-  --surface:#FFFFFF;
-  --border:#E8E5DF;
-  --text:#1A1A1A;
-  --muted:#888;
+  --bg:#F7F6F3;--surface:#FFFFFF;--border:#E8E5DF;--text:#1A1A1A;--muted:#888;
   --c1:#3B5BDB;--c1l:#EEF2FF;
   --c2:#2F9E44;--c2l:#EBFBEE;
   --c3:#E67700;--c3l:#FFF3BF;
   --c4:#C2255C;--c4l:#FFEBF0;
   --c5:#7048E8;--c5l:#F3F0FF;
-  --c6:#0C8599;--c6l:#E3FAFC;
-  --c7:#5C940D;--c7l:#F4FCE3;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;position:sticky;top:0;z-index:100}
 .header-title{font-size:17px;font-weight:600;letter-spacing:-0.3px;flex:1}
 .header-title span{color:var(--muted);font-weight:400;font-size:14px;margin-left:6px}
+.view-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.view-btn{padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;border:none;background:transparent;font-family:inherit;color:var(--muted);transition:all .15s}
+.view-btn.active{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.export-btn{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
 .legend{display:flex;flex-wrap:wrap;gap:6px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border)}
 .legend-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid transparent;transition:all .15s}
 .legend-chip.active{border-color:currentColor}
 .legend-chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+/* CALENDARIO */
 .nav{display:flex;align-items:center;gap:12px;padding:16px 24px 8px}
-.nav-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .1s}
+.nav-btn{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
 .nav-btn:hover{background:var(--border)}
 .nav-month{font-size:18px;font-weight:600;letter-spacing:-0.5px;min-width:180px}
 .calendar{padding:0 24px 32px}
@@ -45,6 +44,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .event-tag{border-radius:5px;padding:2px 6px;font-size:10px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 .helper-tag{border-radius:5px;padding:2px 6px;font-size:10px;background:#F0F0F0;color:#555;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:flex;align-items:center;gap:3px}
 .helper-tag.empty-helper{color:#bbb;font-style:italic}
+/* LISTA */
+.list-view{padding:16px 24px 32px;display:flex;flex-direction:column;gap:24px}
+.corso-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.corso-header{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.corso-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.corso-name{font-size:15px;font-weight:600}
+.corso-anno{font-size:12px;color:var(--muted);margin-left:auto}
+.corso-count{font-size:12px;font-weight:600;padding:3px 8px;border-radius:10px}
+.date-row{display:flex;align-items:center;padding:10px 18px;border-bottom:1px solid var(--border);gap:12px;transition:background .1s;cursor:pointer}
+.date-row:last-child{border-bottom:none}
+.date-row:hover{background:var(--bg)}
+.date-dow{font-size:11px;font-weight:600;color:var(--muted);width:28px;text-transform:uppercase}
+.date-val{font-size:13px;font-weight:500;min-width:130px}
+.date-note{font-size:12px;color:var(--muted);flex:1}
+.date-helper{font-size:12px;padding:3px 8px;border-radius:6px;background:#F0F0F0;color:#555;white-space:nowrap}
+.date-helper.empty{color:#bbb;font-style:italic;background:transparent}
+/* MODAL */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
 .overlay.open{display:flex}
 .modal{background:var(--surface);border-radius:16px;padding:24px;width:360px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.15)}
@@ -55,7 +71,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .modal input:focus{border-color:#888}
 .modal-actions{display:flex;gap:8px;margin-top:16px}
 .btn-save{flex:1;background:#1A1A1A;color:#fff;border:none;border-radius:8px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
-.btn-save:hover{background:#333}
 .btn-cancel{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:14px;cursor:pointer;font-family:inherit}
 .stats{display:flex;gap:8px;flex-wrap:wrap;padding:0 24px 16px}
 .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px;font-size:12px}
@@ -65,16 +80,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <body>
 <div class="header">
   <div class="header-title">Calendario Corsi SUPSI <span id="year-range"></span></div>
-  <button class="nav-btn" onclick="exportCSV()" style="width:auto;padding:0 12px;font-size:12px;font-weight:600">⬇ Esporta</button>
+  <div class="view-toggle">
+    <button class="view-btn active" id="btn-cal" onclick="setView('cal')">📅 Calendario</button>
+    <button class="view-btn" id="btn-list" onclick="setView('list')">📋 Lista</button>
+  </div>
+  <button class="export-btn" onclick="exportCSV()">⬇ Esporta</button>
 </div>
 <div class="legend" id="legend"></div>
-<div class="nav">
-  <button class="nav-btn" onclick="changeMonth(-1)">←</button>
-  <div class="nav-month" id="nav-month"></div>
-  <button class="nav-btn" onclick="changeMonth(1)">→</button>
+<div id="section-cal">
+  <div class="nav">
+    <button class="nav-btn" onclick="changeMonth(-1)">←</button>
+    <div class="nav-month" id="nav-month"></div>
+    <button class="nav-btn" onclick="changeMonth(1)">→</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="calendar"><div class="cal-grid" id="cal-grid"></div></div>
 </div>
-<div class="stats" id="stats"></div>
-<div class="calendar"><div class="cal-grid" id="cal-grid"></div></div>
+<div id="section-list" style="display:none">
+  <div class="list-view" id="list-view"></div>
+</div>
 <div class="overlay" id="overlay" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-title" id="modal-title"></div>
@@ -96,17 +120,125 @@ const EVENTI={};
 GIORNI_RAW.forEach(([corso,data,note])=>{if(!EVENTI[data])EVENTI[data]=[];EVENTI[data].push({corso,note});});
 function loadData(){try{return JSON.parse(localStorage.getItem('supsi_cal')||'{}')}catch{return{}}}
 function saveData(d){localStorage.setItem('supsi_cal',JSON.stringify(d))}
-let DATA=loadData(),curYear=2026,curMonth=9,filterCorso=null,editingDate=null;
+let DATA=loadData(),curYear=2026,curMonth=9,filterCorso=null,editingDate=null,curView='cal';
 const MESI_IT=["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
 const DOW_IT=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
-function buildLegend(){const el=document.getElementById('legend');el.innerHTML='<div class="legend-chip '+(filterCorso===null?'active':'')+'" style="color:#555" onclick="setFilter(null)"><span class="dot" style="background:#999"></span>Tutti</div>';Object.entries(CORSI).forEach(([nome,c])=>{const active=filterCorso===nome?'active':'';el.innerHTML+=`<div class="legend-chip ${active}" style="color:${c.color};background:${active?c.light:'transparent'}" onclick="setFilter('${nome}')"><span class="dot" style="background:${c.color}"></span>${nome} <small style="opacity:.6">${c.anno}</small></div>`;});}
-function setFilter(corso){filterCorso=corso;buildLegend();renderStats();renderCal();}
-function renderStats(){const el=document.getElementById('stats');const total=Object.values(EVENTI).flat().filter(e=>!filterCorso||e.corso===filterCorso).length;const filled=Object.entries(DATA).filter(([date,d])=>{if(!EVENTI[date])return false;if(filterCorso&&!EVENTI[date].some(e=>e.corso===filterCorso))return false;return d.helper&&d.helper.trim();}).length;el.innerHTML=`<div class="stat"><strong>${total}</strong>giorni totali</div><div class="stat"><strong>${filled}</strong>con docente assegnato</div><div class="stat"><strong>${total-filled}</strong>da assegnare</div>`;}
+const DOW_SHORT=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+
+function setView(v){
+  curView=v;
+  document.getElementById('section-cal').style.display=v==='cal'?'block':'none';
+  document.getElementById('section-list').style.display=v==='list'?'block':'none';
+  document.getElementById('btn-cal').className='view-btn'+(v==='cal'?' active':'');
+  document.getElementById('btn-list').className='view-btn'+(v==='list'?' active':'');
+  if(v==='list') renderList();
+}
+
+function buildLegend(){
+  const el=document.getElementById('legend');
+  el.innerHTML='<div class="legend-chip '+(filterCorso===null?'active':'')+'" style="color:#555" onclick="setFilter(null)"><span class="dot" style="background:#999"></span>Tutti</div>';
+  Object.entries(CORSI).forEach(([nome,c])=>{
+    const active=filterCorso===nome?'active':'';
+    el.innerHTML+=`<div class="legend-chip ${active}" style="color:${c.color};background:${active?c.light:'transparent'}" onclick="setFilter('${nome}')"><span class="dot" style="background:${c.color}"></span>${nome} <small style="opacity:.6">${c.anno}</small></div>`;
+  });
+}
+
+function setFilter(corso){filterCorso=corso;buildLegend();renderStats();if(curView==='cal')renderCal();else renderList();}
+
+function renderStats(){
+  const el=document.getElementById('stats');
+  const total=Object.values(EVENTI).flat().filter(e=>!filterCorso||e.corso===filterCorso).length;
+  const filled=Object.entries(DATA).filter(([date,d])=>{if(!EVENTI[date])return false;if(filterCorso&&!EVENTI[date].some(e=>e.corso===filterCorso))return false;return d.helper&&d.helper.trim();}).length;
+  el.innerHTML=`<div class="stat"><strong>${total}</strong>giorni totali</div><div class="stat"><strong>${filled}</strong>con docente assegnato</div><div class="stat"><strong>${total-filled}</strong>da assegnare</div>`;
+}
+
 function changeMonth(d){curMonth+=d;if(curMonth>11){curMonth=0;curYear++}if(curMonth<0){curMonth=11;curYear--}renderCal();document.getElementById('nav-month').textContent=MESI_IT[curMonth]+' '+curYear;}
-function renderCal(){const grid=document.getElementById('cal-grid');grid.innerHTML=DOW_IT.map(d=>`<div class="cal-dow">${d}</div>`).join('');const firstDay=new Date(curYear,curMonth,1);let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;const daysInMonth=new Date(curYear,curMonth+1,0).getDate();const today=new Date();for(let i=0;i<startDow;i++)grid.innerHTML+=`<div class="cal-cell empty"></div>`;for(let day=1;day<=daysInMonth;day++){const dateStr=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;const events=(EVENTI[dateStr]||[]).filter(e=>!filterCorso||e.corso===filterCorso);const saved=DATA[dateStr]||{};const isToday=today.getFullYear()===curYear&&today.getMonth()===curMonth&&today.getDate()===day;let tags='';events.forEach(e=>{const c=CORSI[e.corso];tags+=`<div class="event-tag" style="background:${c.light};color:${c.color}">${e.corso}${e.note?` · ${e.note}`:''}</div>`;});let helperTag='';if(events.length>0){if(saved.helper){helperTag=`<div class="helper-tag">👤 ${saved.helper}</div>`;}else{helperTag=`<div class="helper-tag empty-helper">+ chi aiuta?</div>`;}}const hasEvent=events.length>0;grid.innerHTML+=`<div class="cal-cell${isToday?' today':''}${hasEvent?' has-event':''}" onclick="${hasEvent?`openModal('${dateStr}')`:''}" style="${hasEvent?'background:var(--surface)':''}"><div class="cal-num">${day}</div>${tags}${helperTag}</div>`;}}
-function openModal(dateStr){editingDate=dateStr;const events=(EVENTI[dateStr]||[]);const saved=DATA[dateStr]||{};const d=new Date(dateStr+'T12:00:00');const gg=['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];document.getElementById('modal-title').textContent=`${gg[d.getDay()]} ${d.getDate()} ${MESI_IT[d.getMonth()]} ${d.getFullYear()}`;document.getElementById('modal-sub').textContent=events.map(e=>e.corso).join(' · ');document.getElementById('modal-helper').value=saved.helper||'';document.getElementById('modal-note').value=saved.note||events.find(e=>e.note)?.note||'';document.getElementById('overlay').classList.add('open');setTimeout(()=>document.getElementById('modal-helper').focus(),100);}
+
+function renderCal(){
+  const grid=document.getElementById('cal-grid');
+  grid.innerHTML=DOW_IT.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  const firstDay=new Date(curYear,curMonth,1);
+  let startDow=firstDay.getDay()-1;if(startDow<0)startDow=6;
+  const daysInMonth=new Date(curYear,curMonth+1,0).getDate();
+  const today=new Date();
+  for(let i=0;i<startDow;i++)grid.innerHTML+=`<div class="cal-cell empty"></div>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const dateStr=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const events=(EVENTI[dateStr]||[]).filter(e=>!filterCorso||e.corso===filterCorso);
+    const saved=DATA[dateStr]||{};
+    const isToday=today.getFullYear()===curYear&&today.getMonth()===curMonth&&today.getDate()===day;
+    let tags='';events.forEach(e=>{const c=CORSI[e.corso];tags+=`<div class="event-tag" style="background:${c.light};color:${c.color}">${e.corso}${e.note?` · ${e.note}`:''}</div>`;});
+    let helperTag='';
+    if(events.length>0){helperTag=saved.helper?`<div class="helper-tag">👤 ${saved.helper}</div>`:`<div class="helper-tag empty-helper">+ chi aiuta?</div>`;}
+    const hasEvent=events.length>0;
+    grid.innerHTML+=`<div class="cal-cell${isToday?' today':''}${hasEvent?' has-event':''}" onclick="${hasEvent?`openModal('${dateStr}')`:''}" style="${hasEvent?'background:var(--surface)':''}"><div class="cal-num">${day}</div>${tags}${helperTag}</div>`;
+  }
+}
+
+function renderList(){
+  const el=document.getElementById('list-view');
+  el.innerHTML='';
+  const corsiDaM=Object.keys(CORSI).filter(c=>!filterCorso||c===filterCorso);
+  corsiDaM.forEach(corso=>{
+    const c=CORSI[corso];
+    const giorni=GIORNI_RAW.filter(([cr])=>cr===corso);
+    if(giorni.length===0) return;
+    const colorHex=getComputedColorHex(corso);
+    let rows='';
+    giorni.forEach(([,data,note])=>{
+      const d=new Date(data+'T12:00:00');
+      const saved=DATA[data]||{};
+      const dow=DOW_SHORT[d.getDay()];
+      const dateFormatted=`${d.getDate()} ${MESI_IT[d.getMonth()]} ${d.getFullYear()}`;
+      const noteText=saved.note||note||'';
+      const helperHtml=saved.helper
+        ?`<span class="date-helper">👤 ${saved.helper}</span>`
+        :`<span class="date-helper empty">+ chi aiuta?</span>`;
+      rows+=`<div class="date-row" onclick="openModal('${data}')">
+        <span class="date-dow">${dow}</span>
+        <span class="date-val">${dateFormatted}</span>
+        <span class="date-note">${noteText}</span>
+        ${helperHtml}
+      </div>`;
+    });
+    const filled=giorni.filter(([,data])=>DATA[data]&&DATA[data].helper).length;
+    el.innerHTML+=`<div class="corso-block">
+      <div class="corso-header">
+        <span class="corso-dot" style="background:${c.color}"></span>
+        <span class="corso-name">${corso}</span>
+        <span class="corso-count" style="background:${c.light};color:${c.color}">${filled}/${giorni.length} assegnati</span>
+        <span class="corso-anno">${c.anno}</span>
+      </div>
+      ${rows}
+    </div>`;
+  });
+}
+
+function getComputedColorHex(corso){return CORSI[corso]?.color||'#999';}
+
+function openModal(dateStr){
+  editingDate=dateStr;
+  const events=(EVENTI[dateStr]||[]);
+  const saved=DATA[dateStr]||{};
+  const d=new Date(dateStr+'T12:00:00');
+  document.getElementById('modal-title').textContent=`${DOW_SHORT[d.getDay()]} ${d.getDate()} ${MESI_IT[d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('modal-sub').textContent=events.map(e=>e.corso).join(' · ');
+  document.getElementById('modal-helper').value=saved.helper||'';
+  document.getElementById('modal-note').value=saved.note||events.find(e=>e.note)?.note||'';
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-helper').focus(),100);
+}
 function closeModal(e){if(e&&e.target!==document.getElementById('overlay'))return;document.getElementById('overlay').classList.remove('open');editingDate=null;}
-function saveEntry(){const helper=document.getElementById('modal-helper').value.trim();const note=document.getElementById('modal-note').value.trim();if(!DATA[editingDate])DATA[editingDate]={};DATA[editingDate].helper=helper;DATA[editingDate].note=note;saveData(DATA);document.getElementById('overlay').classList.remove('open');renderStats();renderCal();}
+function saveEntry(){
+  const helper=document.getElementById('modal-helper').value.trim();
+  const note=document.getElementById('modal-note').value.trim();
+  if(!DATA[editingDate])DATA[editingDate]={};
+  DATA[editingDate].helper=helper;DATA[editingDate].note=note;
+  saveData(DATA);
+  document.getElementById('overlay').classList.remove('open');
+  renderStats();
+  if(curView==='cal')renderCal();else renderList();
+}
 function exportCSV(){let csv='Corso,Anno,Data,Chi aiuta,Note\n';GIORNI_RAW.forEach(([corso,data,note])=>{const d=DATA[data]||{};const anno=CORSI[corso]?.anno||'';csv+=`"${corso}","${anno}","${data}","${d.helper||''}","${d.note||note}"\n`;});const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='SUPSI_Corsi_'+new Date().toISOString().slice(0,10)+'.csv';a.click();}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&editingDate)saveEntry();if(e.key==='Escape')closeModal();});
 document.getElementById('year-range').textContent='2026–2027';
